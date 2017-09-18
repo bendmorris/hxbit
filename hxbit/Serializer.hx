@@ -183,10 +183,6 @@ class Serializer {
 	}
 
 	public inline function addFloat(v:Float) {
-		out.addFloat(v);
-	}
-
-	public inline function addDouble(v:Float) {
 		out.addDouble(v);
 	}
 
@@ -291,15 +287,9 @@ class Serializer {
 		return v;
 	}
 
-	public inline function getDouble() {
+	public inline function getFloat() {
 		var v = input.getDouble(inPos);
 		inPos += 8;
-		return v;
-	}
-
-	public inline function getFloat() {
-		var v = input.getFloat(inPos);
-		inPos += 4;
 		return v;
 	}
 
