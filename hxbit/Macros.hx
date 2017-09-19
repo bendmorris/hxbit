@@ -546,15 +546,18 @@ class Macros {
 			Context.error("customSerialize and customUnserialize must both exist or both be removed!",cl.pos);
 		}
 
-		var version:Int = 0;
-		if (cl.meta.has(":version")) {
-			var meta = cl.meta.extract(":version")[0];
-			var e = meta.params[0].expr;
-			switch (e) {
-				case EConst(CInt(i)): version = Std.parseInt(i);
-				default: Context.error("Invalid @:version " + e, meta.pos);
-			}
+		inline function getVersionMeta(name:String) {
+			if (cl.meta.has(name)) {
+				var meta = cl.meta.extract(name)[0];
+				var e = meta.params[0].expr;
+				return switch (e) {
+					case EConst(CInt(i)): Std.parseInt(i);
+					default: Context.error('Invalid @$name $e', meta.pos);
+				}
+			} else return 0;
 		}
+		var version:Int = getVersionMeta(":version");
+		var minVersion:Int = getVersionMeta(":minVersion");
 
 		var fieldsInits = [];
 		for( f in fields ) {
@@ -572,6 +575,9 @@ class Macros {
 		// store and retrieve version number
 		el.push(macro __ctx.addInt($v{version}));
 		ul.push(macro var __version = __ctx.getInt());
+		ul.push(macro if (__version < $v{minVersion}) {
+			throw "version " + __version + " less than min version " + $v{minVersion};
+		});
 		for( f in toSerialize ) {
 			var fname = f.f.name;
 			var t = switch (f.f.kind) {
